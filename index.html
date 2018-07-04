@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+<head>
+</head>
+<body>
+	<div class="collection">
+		<div class="row">
+			<div class="col s6">
+				<label>
+					<span><b>Desligar/Ligar Leds</b></span>
+				</label>
+				<div class="switch">
+				<label>
+				Off
+					<input id="togleLed" type="checkbox">
+					<span class="lever"></span>
+				On
+				</label>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s6">
+				<label>
+					<span><b>Piscar</b></span>
+				</label>
+				<div class="switch">
+				<label>
+				Off
+					<input id="piscaLed" type="checkbox">
+					<span class="lever"></span>
+				On
+				</label>
+				</div>    
+			</div>
+		</div>
+	</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+var togleLed = document.getElementById('togleLed');
+togleLed.addEventListener('click', togleLeds);
+function togleLeds() {
+  var check = document.getElementById('togleLed').checked;
+  var valor = '';
+  if (check === true) {
+    valor = 1;
+  } else {
+    valor = 0;
+    if (document.getElementById('piscaLed').checked == true) {
+      document.getElementById('piscaLed').checked = false;
+    }
+  }
+  var socket = io();
+  socket.emit('onOff', valor);
+  socket.on('onOff', function(msg){
+    console.log(msg);
+  });
+}
+
+var pisca = document.getElementById('piscaLed');
+pisca.addEventListener('click', piscaLed);
+function piscaLed() {
+  var check = document.getElementById('piscaLed').checked;
+  var valor = '';
+  if (check === true) {
+    valor = 1;
+  } else {
+    if (document.getElementById('togleLed').checked == true) {
+		valor = 1;
+        var socket = io();
+		socket.emit('onOff', valor);
+		socket.on('onOff', function(msg) {
+			console.log(msg);
+		});
+      	return;
+    } else {
+		valor = 0;
+    }
+  }
+	var socket = io();
+	socket.emit('piscaLeds', valor);
+	socket.on('piscaLeds', function(msg) {
+		console.log(msg);
+  	});
+}
+</script>
+</html>
